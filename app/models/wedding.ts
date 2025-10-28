@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, hasMany, afterSave, afterDelete } from '@adonisjs/lucid/orm'
-import Guest from './guest.js'
 import * as relations from '@adonisjs/lucid/types/relations'
+import Guest from './guest.js'
 
 export default class Wedding extends BaseModel {
   @column({ isPrimary: true })
@@ -46,12 +46,15 @@ export default class Wedding extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
-
+  // Relation guests avec callback pour éviter ReferenceError
   @hasMany(() => Guest)
   declare guests: relations.HasMany<typeof Guest>
 
   // Méthode pour mettre à jour les statistiques
   async updateStats() {
+    // eslint-disable-next-line @typescript-eslint/no-shadow, @unicorn/no-await-expression-member
+    const Guest = (await import('./guest.js')).default
+
     const stats = await Guest.query()
       .where('wedding_id', this.id)
       .select('COUNT(*) as total_invitations')
@@ -60,7 +63,6 @@ export default class Wedding extends BaseModel {
       .select('SUM(CASE WHEN is_verified THEN 1 ELSE 0 END) as total_verified')
       .first()
 
-    // Guard against null result from the query
     if (!stats || !stats.$extras) {
       this.totalInvitations = 0
       this.totalGuestsExpected = 0
@@ -80,8 +82,11 @@ export default class Wedding extends BaseModel {
 
   // Hook après sauvegarde d'un invité
   @afterSave()
-  static async updateWeddingStats(guest: Guest) {
-    const wedding = await Wedding.find(guest.weddingId)
+  static async updateWeddingStats(guest: any) {
+    if (!guest.weddingId) return
+
+    const WeddingModel = this
+    const wedding = await WeddingModel.find(guest.weddingId)
     if (wedding) {
       await wedding.updateStats()
     }
@@ -89,8 +94,11 @@ export default class Wedding extends BaseModel {
 
   // Hook après suppression d'un invité
   @afterDelete()
-  static async updateWeddingStatsAfterDelete(guest: Guest) {
-    const wedding = await Wedding.find(guest.weddingId)
+  static async updateWeddingStatsAfterDelete(guest: any) {
+    if (!guest.weddingId) return
+
+    const WeddingModel = this
+    const wedding = await WeddingModel.find(guest.weddingId)
     if (wedding) {
       await wedding.updateStats()
     }

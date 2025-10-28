@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Wedding from './wedding.js'
-import BackupCodeService from '#services/backup_code_service'
+import BackupCodeService from '../services/backup_code_service.js'
 
 export default class Guest extends BaseModel {
   @column({ isPrimary: true })

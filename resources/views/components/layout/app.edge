@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2/dist/html5-qrcode.min.js"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-pink-600">💍 Wedding Invites</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium">
+                        🏠 Accueil
+                    </a>
+
+                    @if(wedding)
+                    <a href="{{ route('guests.index', { weddingId: wedding.id }) }}"
+                        class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium">
+                        👥 Invités
+                    </a>
+                    <a href="/scanner"
+                        class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium">
+                        📷 Scanner
+                    </a>
+                    <a href="/backup"
+                        class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium">
+                        🔢 Code Secours
+                    </a>
+                    @else
+                    <span class="text-gray-400 px-3 py-2 rounded-md text-sm font-medium">Invités / Scanner
+                        désactivés</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {{{ await $slots.main() }}} </main>
+
+    <!-- Flash Messages -->
+    @if(flashMessages.has('success'))
+    <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        {{ flashMessages.get('success') }}
+    </div>
+    @endif
+
+    @if(flashMessages.has('error'))
+    <div class="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        {{ flashMessages.get('error') }}
+    </div>
+    @endif
+</body>
+
+</html>
