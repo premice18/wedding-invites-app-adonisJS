@@ -1,0 +1,128 @@
+@layout.app({ title: 'Bienvenue sur Wedding Invites App!' })
+
+@slot('main')
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Bienvenue sur Wedding Invites App! 🎉</h1>
+        <p class="text-xl text-gray-600">Commencez par configurer les détails de votre mariage</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <form action="/setup/wedding" method="POST" class="space-y-6">
+            {{ csrfField() }}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Noms des mariés -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Noms des mariés *
+                    </label>
+                    <input type="text" name="coupleName" required placeholder="ex: Marie & Jean"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                </div>
+
+                <!-- Date du mariage -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Date du mariage *
+                    </label>
+                    <input type="date" name="weddingDate" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                </div>
+
+                <!-- Lieu -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Lieu *
+                    </label>
+                    <input type="text" name="location" required placeholder="ex: Château de Versailles"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                </div>
+
+                <!-- Heure de début -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Heure de début *
+                    </label>
+                    <input type="time" name="startTime" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                </div>
+            </div>
+
+            <!-- Message de bienvenue -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Message de bienvenue
+                </label>
+                <textarea name="welcomeMessage" rows="3" placeholder="Un message chaleureux pour vos invités..."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"></textarea>
+            </div>
+
+            <!-- Programme -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Programme de la journée
+                </label>
+                <textarea name="program" rows="6"
+                    placeholder="14h00 : Cérémonie&#10;16h00 : Cocktail&#10;19h00 : Dîner&#10;22h00 : Soirée dansante"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"></textarea>
+            </div>
+
+            <div class="flex justify-center pt-6">
+                <button type="submit"
+                    class="px-8 py-4 bg-pink-600 text-white text-lg font-semibold rounded-lg hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-colors duration-200">
+                    🎉 Créer mon espace mariage
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Features -->
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-pink-600 text-2xl">📱</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Envoi WhatsApp</h3>
+            <p class="text-gray-600">Envoyez automatiquement les invitations avec QR Code</p>
+        </div>
+
+        <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-green-600 text-2xl">📊</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Suivi en temps réel</h3>
+            <p class="text-gray-600">Visualisez les présences et statistiques live</p>
+        </div>
+
+        <div class="text-center">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-blue-600 text-2xl">🔐</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">3 Méthodes de validation</h3>
+            <p class="text-gray-600">QR Code, manuel ou code de secours</p>
+        </div>
+    </div>
+    <!-- Liste des mariages existants -->
+    @if(weddings && weddings.length > 0)
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">Mes mariages existants</h2>
+        <ul class="divide-y divide-gray-200">
+            @each(wedding in weddings)
+            <li class="py-3 flex justify-between items-center">
+                <div>
+                    <span class="font-medium">{{ wedding.coupleName }}</span>
+                    <span class="text-gray-500"> - {{ new Date(wedding.weddingDate).toLocaleDateString() }}</span>
+                </div>
+                <a href="{{ route('home.dashboard', { weddingId: wedding.id }) }}"
+                    class="text-pink-600 hover:underline">
+                    Accéder au dashboard
+                </a>
+
+            </li>
+            @endeach
+        </ul>
+    </div>
+    @endif
+</div>
+@endslot
+@end

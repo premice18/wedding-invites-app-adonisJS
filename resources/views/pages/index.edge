@@ -1,0 +1,213 @@
+@layout.app({ title: 'Tableau de Bord' })
+
+@slot('main')
+
+<div class="mb-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Tableau de Bord</h1>
+            <p class="text-gray-600">Mariage de {{ wedding.coupleName }}</p>
+        </div>
+        <div class="text-right">
+            <p class="text-lg text-gray-700">
+                📅 {{ new Date(wedding.weddingDate).toLocaleDateString() }}
+            </p>
+            <p class="text-sm text-gray-500">
+                🕒 {{ wedding.startTime }} - 📍 {{ wedding.location }}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Cartes Statistiques -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Carte Invitations Total -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-pink-500">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span class="text-pink-600">📨</span>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Invitations</p>
+                <p class="text-2xl font-bold text-gray-900">{{ stats.totalGuests[0].$extras.total || 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Invités Validés -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <span class="text-green-600">✅</span>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Validés</p>
+                <p class="text-2xl font-bold text-gray-900">{{ stats.verifiedGuests[0].$extras.total || 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte WhatsApp Envoyés -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-blue-600">💬</span>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">WhatsApp</p>
+                <p class="text-2xl font-bold text-gray-900">{{ stats.whatsappSent[0].$extras.total || 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte En Attente -->
+    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <span class="text-yellow-600">⏳</span>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">En attente</p>
+                <p class="text-2xl font-bold text-gray-900">{{ stats.pendingGuests[0].$extras.total || 0 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions Rapides -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Gérer les invités -->
+    <a href="{{ route('guests.index', { weddingId: wedding.id }) }}"
+        class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow duration-200 border border-gray-200">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span class="text-pink-600 text-xl">👥</span>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">Gérer les invités</h3>
+                <p class="text-sm text-gray-600 mt-1">Ajouter, modifier ou supprimer des invités</p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Scanner QR Code -->
+    <a href="/scanner"
+        class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow duration-200 border border-gray-200">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <span class="text-green-600 text-xl">📷</span>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">Scanner QR Code</h3>
+                <p class="text-sm text-gray-600 mt-1">Valider les invités à l'entrée</p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Code de Secours -->
+    <a href="/backup"
+        class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow duration-200 border border-gray-200">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-blue-600 text-xl">🔢</span>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">Code Secours</h3>
+                <p class="text-sm text-gray-600 mt-1">Valider avec le code à 6 chiffres</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+<!-- Derniers invités ajoutés -->
+<div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Derniers invités ajoutés</h3>
+    </div>
+    <div class="p-6">
+        @if(recentGuests.length > 0)
+        <div class="space-y-4">
+            @each(guest in recentGuests)
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 bg-pink-100 rounded-full flex items-center justify-center">
+                        <span class="text-pink-600 font-medium">
+                            {{ guest.firstName.charAt(0) }}{{ guest.lastName.charAt(0) }}
+                        </span>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                            {{ guest.firstName }} {{ guest.lastName }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ guest.phone }} • {{ guest.numberOfPeople }} personne(s)
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    @if(guest.isVerified)
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        ✅ Validé
+                    </span>
+                    @else
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        ⏳ En attente
+                    </span>
+                    @endif
+
+                    @if(guest.whatsappSent)
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        💬 Envoyé
+                    </span>
+                    @endif
+                </div>
+            </div>
+            @endeach
+        </div>
+        @else
+        <div class="text-center py-8">
+            <div class="text-gray-400 text-6xl mb-4">👥</div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun invité pour le moment</h3>
+            <p class="text-gray-600 mb-4">Commencez par ajouter vos premiers invités</p>
+            <a href="{{ route('guests.index', { weddingId: wedding.id }) }}"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700">
+                Ajouter un invité
+            </a>
+        </div>
+        @endif
+    </div>
+</div>
+
+<!-- Programme du mariage -->
+@if(wedding.program)
+<div class="mt-8 bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Programme de la journée</h3>
+    </div>
+    <div class="p-6">
+        <div class="prose max-w-none">
+            {{ wedding.program }}
+        </div>
+    </div>
+</div>
+@endif
+
+@endslot
+@end
