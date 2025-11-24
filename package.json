@@ -32,7 +32,6 @@
     "#config/*": "./config/*.js"
   },
   "devDependencies": {
-    "@adonisjs/assembler": "^7.8.2",
     "@adonisjs/eslint-config": "^2.0.0",
     "@adonisjs/prettier-config": "^1.4.4",
     "@adonisjs/tsconfig": "^1.4.0",
@@ -53,6 +52,7 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "@adonisjs/assembler": "^7.8.2",
     "ts-node": "^10.9.1",
     "@adonisjs/tsconfig": "^1.4.0",
     "@adonisjs/auth": "^9.4.0",
