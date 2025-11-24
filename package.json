@@ -53,6 +53,8 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "ts-node": "^10.9.1",
+    "@adonisjs/tsconfig": "^1.4.0",
     "@adonisjs/auth": "^9.4.0",
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/lucid": "^21.6.1",
