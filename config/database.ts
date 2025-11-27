@@ -21,6 +21,7 @@ const dbConfig = defineConfig({
       pool: {
         min: 1,
         max: 2,
+        acquireTimeoutMillis: 30000,
       },
     },
   },
