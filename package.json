@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node bin/server.js",
     "build": "node ace build",
-    "dev": "node ace serve --hmr",
+    "dev": "node --loader ts-node/esm bin/server.ts",
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
