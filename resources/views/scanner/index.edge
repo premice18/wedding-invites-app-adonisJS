@@ -1,82 +1,404 @@
 @layout.app({ title: 'Scanner QR Code' })
 
 @slot('main')
+<!-- Inclure la librairie HTML5 QR Code -->
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
 <div class="max-w-4xl mx-auto">
+    <!-- Header -->
     <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+            </svg>
+        </div>
         <h2 class="text-3xl font-bold text-gray-900 mb-2">Scanner QR Code</h2>
-        <p class="text-gray-600">Scannez les QR Codes des invités à l'entrée</p>
+        <p class="text-gray-600">Scannez les QR Codes des invités à l'entrée de l'événement</p>
     </div>
 
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <!-- Zone Scanner -->
-        <div id="reader" class="w-full max-w-md mx-auto mb-6 border-2 border-dashed border-gray-300 rounded-lg"
-            style="height: 300px;"></div>
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+        <!-- Contrôles du scanner -->
+        <div class="flex flex-wrap gap-4 justify-center mb-6">
+            <button id="startScanner"
+                class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Démarrer le Scanner
+            </button>
 
-        <!-- Résultat -->
-        <div id="result" class="text-center p-4 rounded-lg hidden">
-            <div id="resultIcon" class="text-4xl mb-2"></div>
-            <h3 id="resultTitle" class="text-xl font-semibold mb-2"></h3>
-            <p id="resultMessage" class="text-gray-600"></p>
-            <div id="guestInfo" class="mt-4 p-4 bg-gray-50 rounded-lg hidden"></div>
+            <button id="stopScanner"
+                class="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
+                Arrêter le Scanner
+            </button>
+
+            <a href="/backup-code"
+                class="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                Code de Secours
+            </a>
+        </div>
+
+        <!-- Zone Scanner avec cadre stylisé -->
+        <div class="relative">
+            <div id="reader"
+                class="w-full max-w-md mx-auto mb-4 border-4 border-blue-200 rounded-2xl overflow-hidden bg-gray-900 relative"
+                style="height: 400px; display: none;">
+                <!-- Overlay de guidage -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="relative">
+                        <!-- Cadre de scan -->
+                        <div class="w-64 h-64 border-2 border-white rounded-lg bg-transparent"></div>
+                        <!-- Coin supérieur gauche -->
+                        <div class="absolute -top-1 -left-1 w-6 h-6 border-t-2 border-l-2 border-blue-400"></div>
+                        <!-- Coin supérieur droit -->
+                        <div class="absolute -top-1 -right-1 w-6 h-6 border-t-2 border-r-2 border-blue-400"></div>
+                        <!-- Coin inférieur gauche -->
+                        <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-2 border-l-2 border-blue-400"></div>
+                        <!-- Coin inférieur droit -->
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-2 border-r-2 border-blue-400"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- État du scanner -->
+            <div id="scannerStatus" class="text-center p-4 bg-blue-50 rounded-lg mb-4">
+                <div class="flex items-center justify-center gap-2 text-blue-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Prêt à scanner - Cliquez sur "Démarrer le Scanner"</span>
+                </div>
+            </div>
+
+            <!-- Message d'erreur détaillé -->
+            <div id="errorDetails" class="text-center p-4 bg-red-50 rounded-lg mb-4 hidden">
+                <div class="flex items-center justify-center gap-2 text-red-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="errorMessage"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode test pour PC sans caméra -->
+        <div id="testMode" class="text-center p-6 bg-yellow-50 rounded-lg border border-yellow-200 mb-6 hidden">
+            <h3 class="text-lg font-semibold text-yellow-800 mb-2">Mode Test Activé</h3>
+            <p class="text-yellow-700 mb-4">Aucune caméra détectée. Utilisation du mode test pour valider le
+                fonctionnement.</p>
+            <button id="testScan"
+                class="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                Simuler un Scan Réussi
+            </button>
+        </div>
+
+        <!-- Statistiques en temps réel -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600" id="scanCount">0</div>
+                <div class="text-sm text-gray-600">Scans effectués</div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-green-600" id="successCount">0</div>
+                <div class="text-sm text-gray-600">Validations réussies</div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-red-600" id="errorCount">0</div>
+                <div class="text-sm text-gray-600">Erreurs</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résultat avec animation -->
+    <div id="result"
+        class="bg-white rounded-2xl shadow-xl p-6 transition-all duration-300 transform scale-95 opacity-0 hidden">
+        <div class="text-center">
+            <div id="resultIcon" class="text-6xl mb-4"></div>
+            <h3 id="resultTitle" class="text-2xl font-bold mb-3"></h3>
+            <p id="resultMessage" class="text-lg mb-4"></p>
+
+            <!-- Informations de l'invité -->
+            <div id="guestInfo"
+                class="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hidden">
+                <h4 class="text-xl font-semibold text-gray-800 mb-4">Informations de l'invité</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    <div>
+                        <span class="font-medium text-gray-700">Nom:</span>
+                        <span id="guestName" class="ml-2 text-gray-900"></span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Personnes:</span>
+                        <span id="guestPeople" class="ml-2 text-gray-900"></span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Table:</span>
+                        <span id="guestTable" class="ml-2 text-gray-900"></span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Régime:</span>
+                        <span id="guestDiet" class="ml-2 text-gray-900"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton pour scanner à nouveau -->
+            <button id="scanAgain"
+                class="mt-6 px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md hidden">
+                Scanner un autre QR Code
+            </button>
         </div>
     </div>
 </div>
 
 <script>
     let html5QrcodeScanner = null;
+    let isScanning = false;
+    let scanCount = 0;
+    let successCount = 0;
+    let errorCount = 0;
+    let isTestMode = false;
+
+    // Vérifier si la librairie est chargée
+    function isLibraryLoaded() {
+        return typeof Html5QrcodeScanner !== 'undefined' &&
+            typeof Html5QrcodeScanType !== 'undefined';
+    }
+
+    // Mettre à jour les compteurs
+    function updateCounters() {
+        document.getElementById('scanCount').textContent = scanCount;
+        document.getElementById('successCount').textContent = successCount;
+        document.getElementById('errorCount').textContent = errorCount;
+    }
+
+    // Afficher les détails d'erreur
+    function showErrorDetails(message) {
+        const errorDiv = document.getElementById('errorDetails');
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    // Cacher les détails d'erreur
+    function hideErrorDetails() {
+        const errorDiv = document.getElementById('errorDetails');
+        errorDiv.classList.add('hidden');
+    }
+
+    // Activer le mode test
+    function enableTestMode() {
+        isTestMode = true;
+        const testModeDiv = document.getElementById('testMode');
+        testModeDiv.classList.remove('hidden');
+
+        document.getElementById('testScan').addEventListener('click', function () {
+            // Simuler un scan réussi
+            const testQRData = 'wedding_1_guest_123';
+            processScanResult(testQRData);
+        });
+    }
 
     // Initialiser le scanner
-    function initScanner() {
-        html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader",
-            {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
-                supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_QR_CODE]
-            },
-            false
-        );
+    async function initScanner() {
+        // Vérifier d'abord si la librairie est chargée
+        if (!isLibraryLoaded()) {
+            throw new Error('La librairie de scan n\'est pas chargée. Vérifiez votre connexion internet.');
+        }
 
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        // Nettoyer le scanner existant
+        if (html5QrcodeScanner) {
+            try {
+                await html5QrcodeScanner.clear();
+            } catch (error) {
+                console.log("Nettoyage précédent scanner:", error);
+            }
+        }
+
+        try {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    rememberLastUsedCamera: true,
+                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_QR_CODE]
+                },
+                false
+            );
+
+            await html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            isScanning = true;
+            return true;
+
+        } catch (error) {
+            console.error("Erreur initialisation scanner:", error);
+            throw error;
+        }
+    }
+
+    // Démarrer le scanner
+    async function startScanner() {
+        const readerDiv = document.getElementById('reader');
+        const startBtn = document.getElementById('startScanner');
+
+        // Réinitialiser l'interface
+        hideErrorDetails();
+        readerDiv.style.display = 'block';
+        updateScannerStatus('Activation de la caméra...', 'text-yellow-600');
+
+        // Désactiver le bouton pendant le démarrage
+        startBtn.disabled = true;
+        startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        try {
+            // Vérification basique des permissions
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Votre navigateur ne supporte pas l\'accès à la caméra');
+            }
+
+            // Vérifier si des caméras sont disponibles
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const cameras = devices.filter(device => device.kind === 'videoinput');
+
+            if (cameras.length === 0) {
+                // Aucune caméra détectée - activer le mode test
+                enableTestMode();
+                updateScannerStatus('Mode test activé - Aucune caméra', 'text-yellow-600');
+                readerDiv.style.display = 'none';
+                return;
+            }
+
+            // Tester l'accès à la caméra
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true
+            });
+
+            // Arrêter le stream de test immédiatement
+            stream.getTracks().forEach(track => track.stop());
+
+            // Initialiser le scanner
+            await initScanner();
+            updateScannerStatus('Scanner actif - Approchez un QR Code', 'text-green-600');
+
+        } catch (error) {
+            console.error('Erreur démarrage scanner:', error);
+
+            let errorMessage = 'Erreur inconnue';
+
+            if (error.message.includes('librairie')) {
+                errorMessage = error.message;
+            } else if (error.name === 'NotAllowedError') {
+                errorMessage = 'Permission caméra refusée. Veuillez autoriser l\'accès à la caméra.';
+            } else if (error.name === 'NotFoundError') {
+                errorMessage = 'Aucune caméra détectée. Activation du mode test...';
+                enableTestMode();
+            } else if (error.name === 'NotSupportedError') {
+                errorMessage = 'Votre navigateur ne supporte pas la fonctionnalité de scan.';
+            } else if (error.name === 'NotReadableError') {
+                errorMessage = 'La caméra est déjà utilisée par une autre application.';
+            } else {
+                errorMessage = `Erreur: ${error.message || 'Impossible de démarrer la caméra'}`;
+            }
+
+            updateScannerStatus('Erreur de démarrage', 'text-red-600');
+            showErrorDetails(errorMessage);
+
+            // Masquer la zone de scan en cas d'erreur
+            readerDiv.style.display = 'none';
+        } finally {
+            // Réactiver le bouton
+            startBtn.disabled = false;
+            startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    // Arrêter le scanner
+    async function stopScanner() {
+        if (html5QrcodeScanner && isScanning) {
+            try {
+                await html5QrcodeScanner.clear();
+                isScanning = false;
+                updateScannerStatus('Scanner arrêté', 'text-gray-600');
+            } catch (error) {
+                console.log("Erreur arrêt scanner:", error);
+            }
+        }
+    }
+
+    // Mettre à jour le statut
+    function updateScannerStatus(message, colorClass) {
+        const statusDiv = document.getElementById('scannerStatus');
+        statusDiv.innerHTML = `
+            <div class="flex items-center justify-center gap-2 ${colorClass}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>${message}</span>
+            </div>
+        `;
     }
 
     // Succès du scan
     async function onScanSuccess(decodedText, decodedResult) {
+        console.log("QR Code scanné:", decodedText);
+        scanCount++;
+        updateCounters();
+
         // Arrêter le scanner temporairement
-        html5QrcodeScanner.clear();
+        await stopScanner();
+        updateScannerStatus('Validation en cours...', 'text-yellow-600');
 
         // Traiter le scan
         await processScanResult(decodedText);
-
-        // Redémarrer le scanner après 3 secondes
-        setTimeout(() => {
-            initScanner();
-        }, 3000);
     }
 
     // Échec du scan
     function onScanFailure(error) {
-        // Les erreurs sont normales pendant la recherche de QR codes
+        // Ignorer les erreurs normales de scan
     }
 
     // Traiter le résultat du scan
     async function processScanResult(qrData) {
         try {
-            const response = await fetch('/api/scan/qr', {
+            const response = await fetch('/scanner/process-qr', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                 },
                 body: JSON.stringify({ qrData: qrData })
             });
+
+            if (!response.ok) {
+                throw new Error('Erreur réseau: ' + response.status);
+            }
 
             const result = await response.json();
             showScanResult(result);
 
         } catch (error) {
+            console.error('Erreur:', error);
+            errorCount++;
+            updateCounters();
             showScanResult({
                 success: false,
-                message: 'Erreur lors du traitement du QR Code'
+                message: 'Erreur lors du traitement du QR Code: ' + error.message
             });
         }
     }
@@ -88,42 +410,69 @@
         const resultTitle = document.getElementById('resultTitle');
         const resultMessage = document.getElementById('resultMessage');
         const guestInfo = document.getElementById('guestInfo');
+        const scanAgainBtn = document.getElementById('scanAgain');
 
         resultDiv.classList.remove('hidden');
 
         if (result.success) {
-            resultDiv.className = 'text-center p-4 rounded-lg bg-green-50 border border-green-200';
+            successCount++;
+            resultDiv.className = 'bg-white rounded-2xl shadow-xl p-6 transition-all duration-300 transform scale-100 opacity-100 bg-green-50 border border-green-200';
             resultIcon.textContent = '✅';
             resultTitle.textContent = 'Invitation Validée!';
-            resultTitle.className = 'text-xl font-semibold mb-2 text-green-800';
+            resultTitle.className = 'text-2xl font-bold mb-3 text-green-800';
             resultMessage.textContent = result.message;
-            resultMessage.className = 'text-green-600';
+            resultMessage.className = 'text-lg mb-4 text-green-600';
 
-            // Afficher les infos de l'invité
             if (result.guest) {
-                guestInfo.innerHTML = `
-                <h4 class="font-semibold text-gray-800">${result.guest.first_name} ${result.guest.last_name}</h4>
-                <p class="text-gray-600">${result.guest.confirmed_people} personne(s) présente(s)</p>
-                <p class="text-gray-600">Table: ${result.guest.table_number || 'Non assignée'}</p>
-                ${result.guest.dietary_restrictions ? `<p class="text-gray-600">Régime: ${result.guest.dietary_restrictions}</p>` : ''}
-            `;
+                document.getElementById('guestName').textContent = `${result.guest.first_name} ${result.guest.last_name}`;
+                document.getElementById('guestPeople').textContent = `${result.guest.confirmed_people || result.guest.confirmedPeople || 1} personne(s)`;
+                document.getElementById('guestTable').textContent = result.guest.table_number || 'Non assignée';
+                document.getElementById('guestDiet').textContent = result.guest.dietary_restrictions || 'Aucun';
                 guestInfo.classList.remove('hidden');
             }
 
         } else {
-            resultDiv.className = 'text-center p-4 rounded-lg bg-red-50 border border-red-200';
+            errorCount++;
+            resultDiv.className = 'bg-white rounded-2xl shadow-xl p-6 transition-all duration-300 transform scale-100 opacity-100 bg-red-50 border border-red-200';
             resultIcon.textContent = '❌';
-            resultTitle.textContent = 'Erreur';
-            resultTitle.className = 'text-xl font-semibold mb-2 text-red-800';
+            resultTitle.textContent = 'Erreur de Validation';
+            resultTitle.className = 'text-2xl font-bold mb-3 text-red-800';
             resultMessage.textContent = result.message;
-            resultMessage.className = 'text-red-600';
+            resultMessage.className = 'text-lg mb-4 text-red-600';
             guestInfo.classList.add('hidden');
+        }
+
+        updateCounters();
+
+        scanAgainBtn.classList.remove('hidden');
+        scanAgainBtn.onclick = function () {
+            resultDiv.classList.add('hidden');
+            scanAgainBtn.classList.add('hidden');
+            if (!isTestMode) {
+                startScanner();
+            }
+        };
+
+        if (!isTestMode) {
+            setTimeout(() => {
+                if (!isScanning) {
+                    resultDiv.classList.add('hidden');
+                    scanAgainBtn.classList.add('hidden');
+                    startScanner();
+                }
+            }, 4000);
         }
     }
 
-    // Démarrer le scanner au chargement
+    // Événements
     document.addEventListener('DOMContentLoaded', function () {
-        initScanner();
+        document.getElementById('startScanner').addEventListener('click', startScanner);
+        document.getElementById('stopScanner').addEventListener('click', stopScanner);
+        updateCounters();
+    });
+
+    window.addEventListener('beforeunload', function () {
+        stopScanner();
     });
 </script>
 @endslot
