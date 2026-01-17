@@ -17,10 +17,13 @@ const dbConfig = defineConfig({
         naturalSort: true,
         paths: ['database/migrations'],
       },
+      // config/database.ts
       pool: {
-        min: 0, // Mis à 0 pour éviter de bloquer des connexions sur Aiven/Render
+        min: 0,
         max: 10,
-        acquireTimeoutMillis: 30000,
+        acquireTimeoutMillis: 90000, // On donne 90 secondes à Knex pour se connecter
+        createTimeoutMillis: 30000,
+        idleTimeoutMillis: 30000,
       },
     },
   },
