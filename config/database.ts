@@ -7,19 +7,18 @@ const dbConfig = defineConfig({
     postgres: {
       client: 'pg',
       connection: {
-        host: env.get('DB_HOST'),
-        port: env.get('DB_PORT'),
-        user: env.get('DB_USER'),
-        password: env.get('DB_PASSWORD'),
-        database: env.get('DB_DATABASE'),
-        ssl: process.env.NODE_ENV === 'production' ? true : false,
-      },
+        // Utilisation de env.get pour la cohérence avec AdonisJS 6
+        connectionString: env.get('DATABASE_URL'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      }, // <-- La connexion doit se fermer ici
       migrations: {
         naturalSort: true,
         paths: ['database/migrations'],
       },
       pool: {
-        min: 2,
+        min: 0, // Mis à 0 pour éviter de bloquer des connexions sur Aiven/Render
         max: 10,
         acquireTimeoutMillis: 30000,
       },
