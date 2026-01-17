@@ -5,16 +5,22 @@ const dbConfig = defineConfig({
   connection: 'postgres',
   connections: {
     // config/database.ts
+    // config/database.ts
     postgres: {
       client: 'pg',
       connection: {
         connectionString: env.get('DATABASE_URL'),
-        // On force ces paramètres en plus de la string
-        port: 28168,
-        host: 'premice18-database-postgres-premicek1-database-postgres.k.aivencloud.com',
-        ssl: { rejectUnauthorized: false },
+        ssl: {
+          rejectUnauthorized: false,
+        },
       },
-      pool: { min: 0, max: 2, acquireTimeoutMillis: 90000 },
+      pool: {
+        min: 0,
+        max: 1, // On force une seule connexion pour stabiliser le démarrage
+        acquireTimeoutMillis: 100000, // On laisse 100 secondes (très généreux)
+        createTimeoutMillis: 100000,
+        idleTimeoutMillis: 5000,
+      },
     },
   },
 })
