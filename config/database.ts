@@ -4,27 +4,17 @@ import { defineConfig } from '@adonisjs/lucid'
 const dbConfig = defineConfig({
   connection: 'postgres',
   connections: {
+    // config/database.ts
     postgres: {
       client: 'pg',
       connection: {
-        // Utilisation de env.get pour la cohérence avec AdonisJS 6
         connectionString: env.get('DATABASE_URL'),
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      }, // <-- La connexion doit se fermer ici
-      migrations: {
-        naturalSort: true,
-        paths: ['database/migrations'],
+        // On force ces paramètres en plus de la string
+        port: 28168,
+        host: 'premice18-database-postgres-premicek1-database-postgres.k.aivencloud.com',
+        ssl: { rejectUnauthorized: false },
       },
-      // config/database.ts
-      pool: {
-        min: 0,
-        max: 10,
-        acquireTimeoutMillis: 90000, // On donne 90 secondes à Knex pour se connecter
-        createTimeoutMillis: 30000,
-        idleTimeoutMillis: 30000,
-      },
+      pool: { min: 0, max: 2, acquireTimeoutMillis: 90000 },
     },
   },
 })
