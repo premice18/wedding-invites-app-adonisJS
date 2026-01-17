@@ -4,8 +4,6 @@ import { defineConfig } from '@adonisjs/lucid'
 const dbConfig = defineConfig({
   connection: 'postgres',
   connections: {
-    // config/database.ts
-    // config/database.ts
     postgres: {
       client: 'pg',
       connection: {
@@ -16,10 +14,8 @@ const dbConfig = defineConfig({
       },
       pool: {
         min: 0,
-        max: 1, // On force une seule connexion pour stabiliser le démarrage
-        acquireTimeoutMillis: 100000, // On laisse 100 secondes (très généreux)
-        createTimeoutMillis: 100000,
-        idleTimeoutMillis: 5000,
+        max: 1, // Gardez à 1 pour le plan Free d'Aiven qui limite à 20 connexions
+        acquireTimeoutMillis: 90000,
       },
     },
   },
